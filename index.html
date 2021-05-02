@@ -35,7 +35,7 @@
                 if (!window.isSecureContext) {
                     document.getElementById("activateButton").innerText = "WebXR unavailable. Please use secure context";
                 }
-                if (navigator.xr) { // check to see if WebXR is supported
+                if (navigator.xr) {
                     navigator.xr.addEventListener('devicechange', checkSupportedState);
                     checkSupportedState();
                 } else {
@@ -48,7 +48,7 @@
                     if (supported) {
                         activateButton.innerHTML = 'Click to start WebXR - Immersive AR';
                         activateButton.disabled = false;
-                        activateButton.addEventListener('click', activateXR);
+                        activateButton.addEventListener('click', activateXRAR);
                     } else {
                         activateButton.innerHTML = 'AR not found';
                     }
@@ -56,11 +56,13 @@
                 });
             }
             
-            const activateXR = async () => {
+            const activateXRAR = async () => {
 
                 const canvas = document.createElement("canvas");
                 document.body.appendChild(canvas);
+
                 const gl = canvas.getContext("webgl", {xrCompatible: true});
+
                 const scene = new THREE.Scene();
 
                 const hemiLight = new THREE.HemisphereLight();
@@ -68,19 +70,19 @@
                 scene.add( hemiLight );
 
                 const renderer = new THREE.WebGLRenderer({
-                alpha: true,
-                preserveDrawingBuffer: true,
-                canvas: canvas,
-                context: gl
+                    alpha: true,
+                    preserveDrawingBuffer: true,
+                    canvas: canvas,
+                    context: gl
                 });
                 renderer.autoClear = false;
 
                 const camera = new THREE.PerspectiveCamera();
                 camera.matrixAutoUpdate = false;
 
-                const newARSession = await navigator.xr.requestSession("immersive-ar", {requiredFeatures: ['hit-test']});
-                newARSession.updateRenderState({
-                baseLayer: new XRWebGLLayer(newARSession, gl)
+                const newARSession = await navigator.xr.requestSession("immersive-ar", { requiredFeatures: ['hit-test'] });
+                    newARSession.updateRenderState({
+                    baseLayer: new XRWebGLLayer(newARSession, gl)
                 });
 
                 const referenceSpace = await newARSession.requestReferenceSpace('local');
