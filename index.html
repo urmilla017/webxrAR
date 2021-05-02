@@ -13,7 +13,6 @@
               margin-top: 50%;
             }
             button {
-                /* width: 75%; */
                 height: 10%;
                 font-size: 2em;
                 border-color: rgb(255, 0, 0);
@@ -27,11 +26,38 @@
         <!-- <a-scene>
             <a-entity text="value: HELLO!" materials="color: red" position="2 2 -1"></a-entity>
         </a-scene> -->
-        <h1 id="checker" disabled></h1>
-        <button onclick="activateXR()">Click to start WebXR - Immersive AR</button>
+        <button id="activateButton" disabled></button>
         <script>
-            const check = document.getElementById('checker');
-            async function activateXR() {
+
+            const activateButton = document.getElementById('activateButton');
+
+            const checkXR = () => {
+                if (!window.isSecureContext) {
+                    document.getElementById("activateButton").innerText = "WebXR unavailable. Please use secure context";
+                }
+                if (navigator.xr) { // check to see if WebXR is supported
+                    navigator.xr.addEventListener('devicechange', checkSupportedState);
+                    checkSupportedState();
+                } else {
+                    document.getElementById("activateButton").innerText = "WebXR unavailable for this browser";
+                }
+            }
+
+            const checkSupportedState = () => {
+                navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+                    if (supported) {
+                        activateButton.innerHTML = 'Click to start WebXR - Immersive AR';
+                        activateButton.disabled = false;
+                        activateButton.addEventListener('click', activateXR);
+                    } else {
+                        activateButton.innerHTML = 'AR not found';
+                    }
+                    activateButton.disabled = !supported;
+                });
+            }
+            
+            const activateXR = async () => {
+
                 const canvas = document.createElement("canvas");
                 document.body.appendChild(canvas);
                 const gl = canvas.getContext("webgl", {xrCompatible: true});
@@ -145,6 +171,7 @@
                 }
                 newARSession.requestAnimationFrame(onXRFrame);
             }
+            checkXR();
         </script>
     </body>
 </html>
